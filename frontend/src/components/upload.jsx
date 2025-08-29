@@ -22,47 +22,11 @@ export default function UploadAd() {
   const [imagePreview, setImagePreview] = useState(null);
   const [moderationResult, setModerationResult] = useState(null);
   const [isAdvertiser, setIsAdvertiser] = useState(false);
-  const [credits, setCredits] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [checkingModeration, setCheckingModeration] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchCredits = async () => {
-    try {
-      const profile = user;
-      console.log('profile in fetchCredits: ', profile);
-      const newCredits = profile.credit || 0;
-      setCredits(newCredits);
-      return newCredits;
-    } catch (err) {
-      console.error('Error fetching profile:', err);
-      setCredits(0);
-      return 0;
-    }
-  };
-
-  useEffect(() => {
-    const init = async () => {
-      if (user?.role === 'advertiser') {
-        await fetchCredits();
-      } else {
-        setCredits(0);
-      }
-      setLoading(false);
-    };
-    init();
-  }, [user]);
-
-  useEffect(() => {
-    if (user?.role === 'advertiser') {
-      const intervalId = setInterval(fetchCredits, 5000);
-      return () => clearInterval(intervalId);
-    }
-  }, [user]);
-
   useEffect(() => {
     if (user?.role === 'advertiser' && user.email) {
-      console.log('user in upload useeffect: ', user.role);
       setForm((prev) => ({ ...prev, advertiserId: user.email }));
       setIsAdvertiser(true);
     } else {
@@ -101,14 +65,7 @@ export default function UploadAd() {
     e.preventDefault();
 
     if (!isAdvertiser) {
-      console.log('user in upload: ', isAdvertiser)
       alert('Only advertisers can upload ads ❌');
-      return;
-    }
-
-    const latestCredits = await fetchCredits();
-    if (latestCredits < 1000) {
-      alert('❌ You don’t have enough credits. Please top up your wallet.');
       return;
     }
 
@@ -134,12 +91,6 @@ export default function UploadAd() {
     return <div className="text-center py-10 text-gray-500">Please log in to upload an ad.</div>;
   }
 
-  if (loading) {
-    return <div className="text-center py-10 text-gray-500">Checking credits...</div>;
-  }
-
-
-
   return (
     <>
       <GoBackButton />
@@ -155,11 +106,12 @@ export default function UploadAd() {
             <input
               name="productName"
               onChange={handleChange}
-              placeholder="Enter productName"
+              placeholder="Enter product name"
               required
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
+
           <div className="space-y-1">
             <label className="block font-medium text-gray-700">Description</label>
             <input
@@ -170,8 +122,9 @@ export default function UploadAd() {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
+
           <div className="space-y-1">
-            <label className="block font-medium text-gray-700">price</label>
+            <label className="block font-medium text-gray-700">Price</label>
             <input
               name="price"
               onChange={handleChange}
@@ -182,15 +135,16 @@ export default function UploadAd() {
           </div>
 
           <div className="space-y-1">
-            <label className="block font-medium text-gray-700">food Type</label>
+            <label className="block font-medium text-gray-700">Food Type</label>
             <input
               name="adType"
               onChange={handleChange}
-              placeholder="e.g., Tech, Fashion, Education"
+              placeholder="e.g., Veg, Non-Veg, Packaged"
               required
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
+
           <div className="space-y-1">
             <label className="block font-medium text-gray-700">Upload Image</label>
             <input
@@ -216,24 +170,17 @@ export default function UploadAd() {
 
           <input type="hidden" name="advertiserId" value={form.advertiserId} />
 
-{submitting ? (
-  <p className="text-blue-600 font-medium text-center">Uploading...</p>
-) : (
-  <button
-    type="submit"
-    disabled={checkingModeration || submitting || credits < 1000}
-    className="w-full py-3 text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-  >
-    Upload Ad
-  </button>
-)}
-
-{credits < 1000 && (
-  <p className="text-center text-red-600 mt-2">
-    ❌ You don’t have enough credits. Please top up your wallet.
-  </p>
-)}
-
+          {submitting ? (
+            <p className="text-blue-600 font-medium text-center">Uploading...</p>
+          ) : (
+            <button
+              type="submit"
+              disabled={checkingModeration || submitting}
+              className="w-full py-3 text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Upload Ad
+            </button>
+          )}
         </form>
       </div>
     </>
