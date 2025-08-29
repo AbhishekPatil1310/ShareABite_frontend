@@ -38,12 +38,17 @@ function LocationMarker({ onSelect, position }) {
       }
     },
   });
-  return position ? <Marker position={position}></Marker> : null;
+
+  // ✅ Prevent NaN marker crash
+  if (position && !isNaN(position.lat) && !isNaN(position.lng)) {
+    return <Marker position={[position.lat, position.lng]} />;
+  }
+  return null;
 }
 
 function FlyToLocation({ position }) {
   const map = useMap();
-  if (position) {
+  if (position && !isNaN(position.lat) && !isNaN(position.lng)) {
     map.flyTo([position.lat, position.lng], 15, { duration: 1.5 });
   }
   return null;
@@ -53,7 +58,7 @@ export default function MapPicker({ onLocationSelect }) {
   const [position, setPosition] = useState(null);
   const [query, setQuery] = useState("");
 
-  // Search for address
+  // 🔍 Search for address
   const handleSearch = async () => {
     if (!query) return;
     try {
@@ -62,8 +67,13 @@ export default function MapPicker({ onLocationSelect }) {
       });
 
       if (res.data?.length > 0) {
-        const { lat, lon, display_name, address } = res.data;
-        const newPos = { lat: parseFloat(lat), lng: parseFloat(lon), fullAddress: display_name, ...address };
+        const { lat, lon, display_name, address } = res.data[0]; // ✅ FIX: use res.data[0]
+        const newPos = {
+          lat: parseFloat(lat),
+          lng: parseFloat(lon),
+          fullAddress: display_name,
+          ...address,
+        };
         setPosition(newPos);
         onLocationSelect(newPos);
       } else {
@@ -74,7 +84,7 @@ export default function MapPicker({ onLocationSelect }) {
     }
   };
 
-  // Get current location
+  // 📍 Get current location
   const handleCurrentLocation = () => {
     if (!navigator.geolocation) {
       return alert("Geolocation is not supported by your browser.");
@@ -104,7 +114,7 @@ export default function MapPicker({ onLocationSelect }) {
 
   return (
     <div className="space-y-4 w-full">
-      {/* Search Bar + Current Location */}
+      {/* 🔎 Search Bar + Current Location */}
       <div className="flex flex-col sm:flex-row gap-2 w-full">
         <input
           type="text"
@@ -127,10 +137,10 @@ export default function MapPicker({ onLocationSelect }) {
         </button>
       </div>
 
-      {/* Map */}
+      {/* 🗺️ Map */}
       <div className="w-full h-64 sm:h-96 md:h-[500px] rounded-xl shadow overflow-hidden">
         <MapContainer
-          center={position ? [position.lat, position.lng] : [19.076, 72.8777]}
+          center={position ? [position.lat, position.lng] : [19.076, 72.8777]} // Mumbai default
           zoom={13}
           className="w-full h-full"
         >
