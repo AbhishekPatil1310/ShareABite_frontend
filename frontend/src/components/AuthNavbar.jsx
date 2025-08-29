@@ -22,7 +22,7 @@ export default function AuthNavbar({ setSidebarOpen }) {
           className="text-2xl font-extrabold text-indigo-500 tracking-wide cursor-pointer hover:scale-105 transition-transform duration-300"
           onClick={() => navigate('/')}
         >
-          RM&R
+          ShareABite
         </h1>
 
         {/* Right: Buttons */}
@@ -58,7 +58,7 @@ export default function AuthNavbar({ setSidebarOpen }) {
           className="text-xl font-extrabold text-indigo-500 tracking-wide cursor-pointer hover:scale-105 transition-transform duration-300"
           onClick={() => navigate('/')}
         >
-          RM&R
+          ShareABite
         </h1>
 
         {/* Right: Icons only */}
